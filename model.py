@@ -44,6 +44,10 @@ def augment_with_side_cameras(samples, angle_correction=0):
             new_samples.append((right, angle - angle_correction))
     return new_samples
 
+def read_image(path):
+    img = cv2.imread(path)
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
 def generator(samples, batch_size=32):
     num_samples = len(samples)
     while True: 
@@ -54,15 +58,15 @@ def generator(samples, batch_size=32):
             images = []
             angles = []
             for img_path, angle in batch_samples:
-                images.append(cv2.imread(img_path))
+                images.append(read_image(img_path))
                 angles.append(angle)
 
             X_train = np.array(images)
             y_train = np.array(angles)
             yield shuffle(X_train, y_train)
 
-data_path = './driving/'
-angle_correction = 0
+data_path = './driving-training/'
+angle_correction = 0.3
 
 samples = read_data(data_path)
 print("Dataset size: %d" % len(samples))
@@ -81,7 +85,7 @@ print("Baseline MSE: %.3f" % base_mse)
 
 image_shape = (160, 320, 3)
 cropping = ((60, 0), (0, 0))
-dropout_rate = 0.4
+dropout_rate = 0
 batch_size = 128
 
 normalize = lambda x: (x - 127.0) / 127.0
@@ -109,6 +113,6 @@ model.compile(loss='mse', optimizer='adam')
 history = model.fit_generator(generator(train_samples, batch_size), len(train_samples) // batch_size, 
                              validation_data=generator(valid_samples, batch_size), 
                              validation_steps=(len(valid_samples) // batch_size), 
-                             epochs = 12)
+                             epochs = 3)
 
 model.save('model.h5')
