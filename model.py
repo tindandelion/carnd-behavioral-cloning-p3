@@ -11,6 +11,7 @@ from sklearn.utils import shuffle
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Convolution2D, MaxPooling2D, Lambda, Cropping2D, Dropout
 from keras.optimizers import Adagrad
+from keras.utils import plot_model
 
 def read_csv(root_path):
     with open(root_path + 'driving_log.csv', 'r') as f:
@@ -138,6 +139,8 @@ model.add(Dense(100, activation='relu'))
 model.add(Dense(50, activation='relu'))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
+
+plot_model(model, to_file="model.png", show_layer_names=False, show_shapes=True)
 
 optimizer = Adagrad(lr=0.001)
 model.compile(loss='mse', optimizer=optimizer)
