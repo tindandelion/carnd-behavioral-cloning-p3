@@ -5,8 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from tqdm import tqdm
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
 from keras.models import Sequential
@@ -32,19 +31,27 @@ def read_data(data_path):
                 
     return samples
 
-def baseline_mse(samples):
-    angles = np.array([s[1] for s in samples])
-    return np.mean(np.square(angles - np.mean(angles)))
-
-def augment_with_side_cameras(samples, angle_correction=0):
-    new_samples = []
-    for images, angle in samples:
+def augment_with_side_cameras(angle_aug):
+    def transform(images, base_angle):
         center, left, right = images
-        new_samples.append((center, angle))
-        if angle_correction > 0:
-            new_samples.append((left, angle + angle_correction))
-            new_samples.append((right, angle - angle_correction))
-    return new_samples
+        return [(center, base_angle),
+                (left, base_angle + angle_aug),
+                (right, base_angle - angle_aug)]
+    
+    return transform
+
+def no_augmentation():
+    def transform(images, angle):
+        center = images[0]
+        return [(center, angle)]
+    
+    return transform 
+
+def make_sample_array(samples, transformer_fn):
+    result = []
+    for images, angle in samples:
+        result += transformer_fn(images, angle)
+    return result
 
 def read_image(path):
     img = cv2.imread(path)
@@ -76,8 +83,8 @@ def balance_samples(samples):
     for s in samples: 
         angle = s[1]
         if abs(angle) < zero_threshold:
-            chance = rnd.uniform(0, 1)
-            if (chance > 0.7):
+            drop_prob = rnd.uniform(0, 1)
+            if (drop_prob > 0.7):
                 result.append(s)
         else:
             result.append(s)
@@ -92,15 +99,14 @@ print("Dataset size: %d" % len(samples))
 
 train_samples, valid_samples = train_test_split(samples, test_size=0.2)
 
-train_samples = augment_with_side_cameras(samples, angle_correction)
-valid_samples = augment_with_side_cameras(valid_samples, 0)
+train_samples = make_sample_array(samples, augment_with_side_cameras(angle_correction))
+valid_samples = make_sample_array(valid_samples, no_augmentation())
 
 print("Training set size: %d" % len(train_samples))
 print("Validation set size: %d" % len(valid_samples))
 
 image_shape = (160, 320, 3)
 cropping = ((60, 0), (0, 0))
-dropout_rate = 0
 batch_size = 128
 
 normalize = lambda x: (x - 127.0) / 127.0
@@ -115,11 +121,8 @@ model.add(Convolution2D(64, kernel_size=(3, 3), padding='valid', activation='rel
 model.add(Convolution2D(64, kernel_size=(3, 3), padding='valid', activation='relu'))
 
 model.add(Flatten())
-model.add(Dropout(dropout_rate))
 model.add(Dense(100, activation='relu'))
-model.add(Dropout(dropout_rate))
 model.add(Dense(50, activation='relu'))
-model.add(Dropout(dropout_rate))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
