@@ -14,6 +14,7 @@ The goals / steps of this project are the following:
 
 [model]: ./output/model.png "Model Visualization"
 [loss]: ./output/loss.png "Training/validation loss"
+[camera-images]: ./output/camera-images.png "Sample camera images"
 
 ## Submitted files
 
@@ -84,6 +85,10 @@ Later in the process I added a few pieces from the test track, where the model
 was not performing well, apparently due to specific road conditions (dirt
 borders). I also recorded a few recovery laps, to make the model learn how to
 recover from going off-center. 
+
+Here is the sample images from the left, center, and right cameras:
+
+![Sample images][camera-images]
 
 ## Training data preprocessing
 
