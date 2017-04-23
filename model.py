@@ -109,17 +109,22 @@ def balance_samples(samples):
             
 
 data_path = './driving-training/'
-angle_correction = 0.2
+test_data_path = './driving-test/'
 
 samples = balance_samples(read_data(data_path))
 print("Dataset size: %d" % len(samples))
 
+
+angle_correction = 0.2
 train_samples, valid_samples = train_test_split(samples, test_size=0.2)
 train_samples = make_sample_array(samples, augment_with_side_cameras(angle_correction))
 valid_samples = make_sample_array(valid_samples, no_augmentation())
 
 print("Training set size: %d" % len(train_samples))
 print("Validation set size: %d" % len(valid_samples))
+
+test_samples = read_data(test_data_path)
+test_samples = make_sample_array(test_samples, no_augmentation())
 
 image_shape = (160, 320, 3)
 cropping = ((60, 0), (0, 0))
@@ -140,7 +145,7 @@ model.add(Dense(50, activation='relu'))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
-plot_model(model, to_file="model.png", show_layer_names=False, show_shapes=True)
+plot_model(model, to_file="./output/model.png", show_layer_names=False, show_shapes=True)
 
 optimizer = Adagrad(lr=0.001)
 model.compile(loss='mse', optimizer=optimizer)
@@ -151,4 +156,9 @@ history = model.fit_generator(generator(train_samples, batch_size), len(train_sa
                              epochs = 10, 
                              verbose = 1)
 
+test_error  = model.evaluate_generator(generator(test_samples), 
+                                       steps=len(test_samples) // batch_size)
+print("Model error on the test dataset: %.3f" % test_error)
+
 model.save('model.h5')
+print("Model has been saved")
