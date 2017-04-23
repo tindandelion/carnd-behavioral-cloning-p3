@@ -61,7 +61,8 @@ changes during training:
 
 This plot shows that there are no signs of over-fitting, due to the diversity in
 training data, recorded on both track 1 and 2. Therefore, no additional effort
-is required to address over-fitting problems.
+is required to address over-fitting problems, so **I decided not to use dropout
+layers in the final model**.
 
 Concerning the number of epochs, it looks like 10 epochs is a good trade-off
 between training time and model performance. I haven't noticed any perceived
@@ -84,9 +85,14 @@ previously unseen tracks.
 Later in the process I added a few pieces from the test track, where the model
 was not performing well, apparently due to specific road conditions (dirt
 borders). I also recorded a few recovery laps, to make the model learn how to
-recover from going off-center. 
+recover from going off-center.
 
-Here is the sample images from the left, center, and right cameras:
+To test the final model performance, I collected a separate test dataset,
+recorded on a single round of driving along the test route. This dataset was
+stored separately from the training data; it was only employed for the final
+model performance evaluation.
+
+Here are the sample images from the left, center, and right cameras:
 
 ![Sample images][camera-images]
 
@@ -110,6 +116,20 @@ valuable information. I used Keras' `Cropping2D` layer for that.
 
 4. The pixel data is normalized to the [0, 1] range. I used `Lambda` layers to
 do that.
+
+## Final model evaluation 
+
+As described above, I split the data into training an validation datasets with
+the 80 / 20 percent ratio. In addition to that, I recorded a separate test
+dataset that wasn't used during training. The test dataset was only employed to
+estimate the final model accuracy.
+
+The final model's error rates are as follows: 
+
+| Training error | Validation error | Test error |
+|:--------------:|:----------------:|:----------:|
+| 0.121          | 0.123            | 0.095      |
+
 
 ## Test drive
 
