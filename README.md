@@ -43,7 +43,7 @@ developed by NVidia engineers. In summary, the model contains 6 convolutional
 layers, and 3 fully-connected ones. The model doesn't use max pooling, but
 employs 2-strides for the first 3 convolutional layers.  For fully-connected
 layers, the model uses ReLU to introduce nonlinearity. There are also 2
-pre-processing layers (cropping and normalizing), desribed below in this
+pre-processing layers (cropping and normalizing), described below in this
 document.
 
 ![Model architecture][model]
@@ -53,19 +53,19 @@ document.
 For training, I used Adagrad optimizer with the learning rate of 0.001, which
 showed good convergence on the training dataset. 
 
-To control overfitting, I split the dataset into the training and validation
+To control over-fitting, I split the dataset into the training and validation
 subsets. The training process calculates the training and validation loss
 changes during training: 
 
 ![Loss visualization][loss]
 
-This plot shows that there are no signs of overfitting, due to the diversity in
+This plot shows that there are no signs of over-fitting, due to the diversity in
 training data, recorded on both track 1 and 2. Therefore, no additional effort
-is required to address overfitting problems.
+is required to address over-fitting problems.
 
 Concerning the number of epochs, it looks like 10 epochs is a good trade-off
 between training time and model performance. I haven't noticed any perceived
-improvements in car behaviour when the number of epochs was above 10, even
+improvements in car behavior when the number of epochs was above 10, even
 though the training and validation errors continued to decrease. 
 
 ## Training data collection strategy
@@ -79,7 +79,7 @@ also 1 round of driving by the track 1 in the reverse direction.
 My idea to avoid recording the testing route directly was that, if I manage to
 train the model to drive the test route with the data from other routes, that
 would be an indication that the model is general enough to drive along
-prevoiusly unseen tracks. 
+previously unseen tracks. 
 
 Later in the process I added a few pieces from the test track, where the model
 was not performing well, apparently due to specific road conditions (dirt
